@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aura Player | Minimalist Music</title>
+    <link href="https://googleapis.com" rel="stylesheet">
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #8b5cf6; /* Vibrant Purple */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Ambient Background Glows */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: var(--accent);
+            filter: blur(150px);
+            opacity: 0.15;
+            top: 10%; left: 10%;
+            z-index: -1;
+        }
+
+        .player-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-weight: 600;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            color: white;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(139, 92, 246, 0.3); }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            background: #a78bfa;
+            transform: translateY(-2px);
+        }
+
+        #display-area {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        iframe { width: 100%; height: 100%; border: none; }
+        
+        .empty-state { color: #64748b; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="player-card">
+        <h1>Aura</h1>
+        
+        <div class="search-container">
+            <input type="text" id="urlInput" placeholder="Drop a Spotify or YouTube link...">
+            <button onclick="playMedia()">Play</button>
+        </div>
+
+        <div id="display-area">
+            <div class="empty-state">No music playing. Paste a link to begin.</div>
+        </div>
+    </div>
+
+    <script>
+        function playMedia() {
+            const val = document.getElementById('urlInput').value;
+            const area = document.getElementById('display-area');
+            
+            if (val.includes('youtube.com') || val.includes('youtu.be')) {
+                const id = val.split('v=')[1]?.split('&')[0] || val.split('/').pop();
+                area.innerHTML = `<iframe src="https://youtube-nocookie.com{id}?autoplay=1&modestbranding=1" allow="autoplay"></iframe>`;
+            } else if (val.includes('spotify.com')) {
+                const embedUrl = val.replace("://spotify.com", "://spotify.com/embed");
+                area.innerHTML = `<iframe src="${embedUrl}" allow="encrypted-media"></iframe>`;
+            }
+        }
+    </script>
+</body>
+</html>
