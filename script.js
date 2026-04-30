@@ -12,35 +12,32 @@
         window.location.href = authUrl;
     }
 
-    function extractYoutubeId(url) {
-        // This regex handles standard, short, mobile, and embed links
-        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[7].length === 11) ? match[7] : null;
-    }
+   function extractYoutubePlaylistId(url) {
+    // Looks for the 'list=' parameter in the URL
+    const reg = /[&?]list=([a-zA-Z0-9_-]+)/i;
+    const match = reg.exec(url);
+    return (match && match[1]) ? match[1] : null;
+}
 
-    function playMedia() {
-        const val = document.getElementById('urlInput').value.trim();
-        const area = document.getElementById('display-area');
+function playMedia() {
+    const val = document.getElementById('urlInput').value.trim();
+    const area = document.getElementById('display-area');
 
-        if (val.includes('youtube.com') || val.includes('youtu.be')) {
-            const id = extractYoutubeId(val);
-            if (id) {
-                // Use youtube-nocookie and modestbranding for that "distraction-free" look
-                area.innerHTML = `<iframe src="https://youtube-nocookie.com{id}?autoplay=1&modestbranding=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            } else {
-                alert("Could not find a valid YouTube Video ID. Try another link!");
-            }
-        } 
-        else if (val.includes('spotify.com')) {
-            if (!accessToken) {
-                if (confirm("Spotify requires a quick login to play through your app. Login now?")) {
-                    loginToSpotify();
-                }
-                return;
-            }
-            const embedUrl = val.replace("://spotify.com", "://spotify.com/embed");
-            area.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" allow="encrypted-media"></iframe>`;
+    if (val.includes('list=')) { // Detects a YouTube Playlist
+        const playlistId = extractYoutubePlaylistId(val);
+        if (playlistId) {
+            // Uses 'videoseries' path to embed the entire playlist
+            area.innerHTML = `<iframe src="https://youtube-nocookie.com{playlistId}&autoplay=1&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        } else {
+            alert("Could not find a valid YouTube Playlist ID.");
         }
+    } 
+    else if (val.includes('://spotify.com')) { // Detects a Spotify Playlist
+        // Transforms standard link to embed format: /playlist/ID -> /embed/playlist/ID
+        const embedUrl = val.replace("open.://spotify.com", "://spotify.com");
+        area.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>`;
     }
-</script>
+    else {
+        alert("Please paste a valid YouTube or Spotify PLAYLIST link.");
+    }
+}
