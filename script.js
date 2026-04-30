@@ -18,10 +18,24 @@ function playMedia() {
     const val = document.getElementById('urlInput').value.trim();
     const area = document.getElementById('display-area');
 
-    if (!val) {
-        alert("Please paste a link first!");
-        return;
+    if (!val) return;
+
+    if (val.includes('list=')) {
+        // This helper finds the playlist ID safely
+        const urlParams = new URLSearchParams(val.split('?')[1]);
+        const playlistId = urlParams.get('list');
+        
+        if (playlistId) {
+            // CRITICAL: Notice the `backticks` and the ${} syntax
+            area.innerHTML = `<iframe src="https://youtube-nocookie.com{playlistId}&autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+        }
+    } 
+    else if (val.includes('://spotify.com')) {
+        const embedUrl = val.replace("open.://spotify.com", "://spotify.com");
+        area.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
     }
+}
+
 
     // --- YOUTUBE PLAYLIST LOGIC ---
     if (val.includes('list=')) {
